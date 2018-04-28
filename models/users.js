@@ -17,26 +17,44 @@ const lastNameValidator = [
   })
 ];
 
+const emailValidator = [
+	validate({
+		validator: 'isEmail',
+		message: 'Por favor ingres un e-mail válido'
+	})
+];
+
 const User = new Schema({
   firstName: {
     type: String,
-    required: true,
     lowercase: true,
     trim: true,
     validate: firstNameValidator
   },
   lastName: {
     type: String,
-    required: true,
     lowercase: true,
     trim: true,
     validate: lastNameValidator
   },
+	email:  {
+		type: String,
+		required: true,
+		lowercase: true,
+		validate: emailValidator
+	},
+	admin: {
+		type: Boolean,
+		default: false
+	},
   tasks: [{type: Schema.Types.ObjectId, ref: 'Task'}]
 }, {
   timestamps: true
 });
 
-User.plugin(passportLocalMongoose);
+User.plugin(passportLocalMongoose, {
+	usernameField: 'email',
+	usernameLowerCase: true
+});
 
 module.exports = mongoose.model('User', User);

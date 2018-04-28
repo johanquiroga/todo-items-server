@@ -28,4 +28,4 @@ const Task = new Schema({
 
 Task.plugin(mongoosePaginate);
 
-module.exports = mongoose.model('User', User);
+module.exports = mongoose.model('Task', Task);
