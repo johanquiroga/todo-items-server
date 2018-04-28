@@ -20,7 +20,10 @@ connect.then(
   () => {
     console.log('Connected correctly to server: ' + config.mongoUrl);
   },
-  (err) => console.error(err)
+  (err) => {
+    console.error(err);
+	  process.exit(1);
+  }
 );
 
 const app = express();
