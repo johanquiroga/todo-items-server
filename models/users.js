@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const passportLocalMongoose = require('passport-local-mongoose');
 const validate = require('mongoose-validator');
+const sanitizerPlugin = require('mongoose-sanitizer-plugin');
 
 const firstNameValidator = [
   validate({
@@ -40,7 +41,6 @@ const User = new Schema({
 	email:  {
 		type: String,
 		required: true,
-		lowercase: true,
 		validate: emailValidator
 	},
 	admin: {
@@ -55,6 +55,10 @@ const User = new Schema({
 User.plugin(passportLocalMongoose, {
 	usernameField: 'email',
 	usernameLowerCase: true
+});
+User.plugin(sanitizerPlugin, {
+	mode: 'sanitize',
+	exclude: ['tasks', 'admin'],
 });
 
 module.exports = mongoose.model('User', User);

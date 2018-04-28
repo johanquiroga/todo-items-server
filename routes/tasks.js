@@ -1,52 +1,109 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const errors = require('throw.js');
+
 const cors = require('./cors');
+const Task = require('../models/tasks');
+const authenticate = require('../auth/authenticate');
+const authorization = require('../auth/authorization');
 
 const router = express.Router();
 
-const Task = require('../models/tasks');
-
 router.use(bodyParser.json());
 
-/* GET users listing. */
+/* GET tasks listing. */
 router.route('/')
-  .options(cors.corsWithOptions, (req, res) => {
-    res.sendStatus = 200;
+	.all(cors.corsWithOptions, authenticate.verifyUser, authorization.verifyNotAdmin, (req, res, next) => {
+		res.setHeader('Content-Type', 'application/json');
+		next();
+	})
+	.options((req, res) => {
+		res.sendStatus = 200;
+	})
+  .get((req, res, next) => {
+    Task.find({user: req.user._id})
+      .populate('user', 'email firstName lastName')
+      .then(tasks => {
+      	res.statusCode = 200;
+      	res.json(tasks);
+      }, err => next(err))
+	    .catch(err => next(err));
   })
-  .get(cors.cors, (req, res, next) => {
-    res.send('Get all tasks');
+  .post((req, res, next) => {
+  	const { name, priority, dueDate } = req.body;
+  	const user = req.user._id;
+  	Task.create({name, priority, dueDate, user})
+		  .then(task => {
+	      req.user.tasks.push(task._id);
+	      req.user.save().then(user => {
+			    res.statusCode = 200;
+			    res.json({success: true, task});
+		    }, err => next(err))
+	      .catch(err => next(err));
+	    }, err => next(err))
+		  .catch(err => next(err));
   })
-  .post(cors.corsWithOptions, (req, res, next) => {
-    res.send('Create new task');
+  .put((req, res, next) => {
+  	return next(new errors.MethodNotAllowed('PUT operation not supported on /tasks'));
   })
-  .put(cors.corsWithOptions, (req, res, next) => {
-    res.statusCode = 403;
-    res.end('PUT operation not supported on /tasks');
-  })
-  .delete(cors.corsWithOptions, (req, res, next) => {
-    res.send('Delete all tasks');
+  .delete((req, res, next) => {
+    Task.remove({user: req.user._id})
+	    .then(resp => {
+	    	res.statusCode = 200;
+	    	res.json({success: true, message: `${resp.n} task(s) were deleted`});
+      }, err => next(err))
+	    .catch(err => next(err));
   });
 
 router.param('taskId', (req, res, next, taskId) => {
-  console.log('Check for task and load it to req object');
+  Task.findById(taskId)
+    .populate('user', 'email firstName lastName')
+	  .then(task => {
+	  	if(!task) {
+	  		return next(new errors.NotFound('Task ' + taskId + ' not found'));
+		  }
+
+		  req.task = task;
+	  	return next();
+    }, err => next(err))
+	  .catch(err => next(err));
 });
 
 router.route('/:taskId')
-  .options(cors.corsWithOptions, (req, res) => {
-    res.sendStatus = 200;
+	.all(cors.corsWithOptions, authenticate.verifyUser, authorization.verifyNotAdmin, authorization.verifyTask, (req, res, next) => {
+		res.setHeader('Content-Type', 'application/json');
+		next();
+	})
+	.options((req, res) => {
+		res.sendStatus = 200;
+	})
+  .get((req, res, next) => {
+    res.statusCode = 200;
+    res.json({success: true, task: req.task});
   })
-  .get(cors.cors, (req, res, next) => {
-    res.send('Get requested task');
+  .post((req, res, next) => {
+		return next(new errors.MethodNotAllowed('POST operation not supported on /tasks/' + req.params.taskId));
   })
-  .post(cors.corsWithOptions, (req, res, next) => {
-    res.statusCode = 403;
-    res.end('POST operation not supported on /tasks/' + req.params.taskId);
+  .put((req, res, next) => {
+  	const {
+      name = req.task.name,
+      priority = req.task.priority,
+      dueDate = req.task.dueDate
+  	} = req.body;
+    Task.findByIdAndUpdate(req.task._id, {$set: {name, priority, dueDate}}, {new: true})
+	    .then(task => {
+	    	res.statusCode = 200;
+	    	res.json({success: true, task});
+      }, err => next(err))
+	    .catch(err => next(err));
   })
-  .put(cors.corsWithOptions, (req, res, next) => {
-    res.end('Update given task');
-  })
-  .delete(cors.corsWithOptions, (req, res, next) => {
-    res.send('Delete task given');
+  .delete((req, res, next) => {
+    req.task.remove()
+	    .then(task => {
+	    	res.statusCode = 200;
+	    	res.json({success: true, task})
+      }, err => next(err))
+	    .catch(err => next(err));
   });
 
 module.exports = router;

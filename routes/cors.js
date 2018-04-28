@@ -4,10 +4,8 @@ const config = require('../config');
 
 const app = express();
 
-let whitelist = config.whitelist.split(',');
-if (whitelist !== [] && whitelist[0] !== '') {
-	whitelist = config.whitelist.split(',');
-} else {
+let whitelist = config.whitelist.split(',').filter(host => host !== '');
+if (whitelist.length === 0) {
 	whitelist = ['http://localhost:3000'];
 }
 

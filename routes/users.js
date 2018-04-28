@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const passport = require('passport');
+const errors = require('throw.js');
 
 const cors = require('./cors');
 const User = require('../models/users');
@@ -12,21 +12,39 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.get('/', cors.corsWithOptions, authenticate.verifyUser, authorization.verifyAdmin, (req, res, next) => {
-  User.find({})
-    .then((users) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(users);
-    }, err => next(err))
-  .catch(err => next(err));
+router.all('/', cors.corsWithOptions, (req, res, next) => {
+	res.setHeader('Content-Type', 'application/json');
+	next();
 });
 
-router.post('/signup', cors.corsWithOptions, (req, res, next) => {
+router.get('/', authenticate.verifyUser, authorization.verifyAdmin, (req, res, next) => {
+  User.find({})
+    .populate('tasks', '-user')
+    .then((users) => {
+      res.statusCode = 200;
+      res.json(users);
+    }, err => next(err))
+    .catch(err => next(err));
+});
+
+router.get('/:userId', authenticate.verifyUser, authorization.verifyUser, (req, res, next) => {
+	User.findById(req.params.userId)
+		.populate('tasks', '-user')
+		.then(user => {
+			if (!user) {
+				return next(new errors.NotFound('User ' + userId + ' not found'));
+			}
+
+			res.statusCode = 200;
+			res.json({success: true, user});
+		}, err => next(err))
+		.catch(err => next(err));
+});
+
+router.post('/signup', (req, res, next) => {
   User.register(new User({email: req.body.email}), req.body.password, (err, user) => {
     if (err) {
       res.statusCode = 500;
-      res.setHeader('Content-Type', 'application/json');
       return res.json({err});
     } else {
 	    const {firstName, lastName} = req.body;
@@ -40,13 +58,11 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
 	    user.save((err, user) => {
 		    if (err) {
 			    res.statusCode = 500;
-			    res.setHeader('Content-Type', 'application/json');
 			    return res.json({err});
 		    }
 
 		    passport.authenticate('local')(req, res, () => {
 			    res.statusCode = 200;
-			    res.setHeader('Content-Type', 'application/json');
 			    res.json({success: true, status: 'Registration Successful!'});
 		    });
 	    });
@@ -54,24 +70,23 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   });
 });
 
-router.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res, next) => {
-	const token = authenticate.getToken({_id: req.user._id});
+router.post('/login',
+	passport.authenticate('local'),
+	(req, res, next) => {
+		const token = authenticate.getToken({_id: req.user._id});
 
-	res.statusCode = 200;
-	res.setHeader('Content-Type', 'application/json');
-  res.json({success: true, token, status: 'You are successfully logged in'});
-});
+		res.statusCode = 200;
+    res.json({success: true, token, status: 'You are successfully logged in'});
+	}
+);
 
-router.post('/logout', cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-	res.setHeader('Content-Type', 'application/json');
+router.post('/logout', authenticate.verifyUser, (req, res, next) => {
   if (req.user) {
   	req.user = null;
   	req.statusCode = 200;
   	return res.json({success: true, token: null, status: 'Successfully logged out'});
   } else {
-	  const err = new Error('You are not logged in!');
-	  err.status = 403;
-	  return next(err);
+	  return next(new errors.Forbidden('You are not logged in!'));
   }
 });
 
