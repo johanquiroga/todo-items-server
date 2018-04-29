@@ -38,6 +38,13 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
+app.use((req, res, next) => {
+  if (req.body.data) {
+    req.body = {...req.body, ...req.body.data};
+    delete req.body.data;
+  }
+  next();
+});
 
 app.use('/', index);
 app.use('/users', users);
@@ -57,7 +64,7 @@ app.use((err, req, res, next) => {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
+  res.status(err.status || err.statusCode || 500);
   res.json({success: false, err});
 });
 

@@ -22,7 +22,7 @@ router.get('/', authenticate.verifyUser, authorization.verifyAdmin, (req, res, n
     .populate('tasks', '-user')
     .then((users) => {
       res.statusCode = 200;
-      res.json(users);
+      res.json({success: true, users});
     }, err => next(err))
     .catch(err => next(err));
 });
@@ -45,7 +45,7 @@ router.post('/signup', (req, res, next) => {
   User.register(new User({email: req.body.email}), req.body.password, (err, user) => {
     if (err) {
       res.statusCode = 500;
-      return res.json({err});
+      return res.json({success: false, err});
     } else {
 	    const {firstName, lastName} = req.body;
 	    if (firstName) {
@@ -58,12 +58,12 @@ router.post('/signup', (req, res, next) => {
 	    user.save((err, user) => {
 		    if (err) {
 			    res.statusCode = 500;
-			    return res.json({err});
+			    return res.json({success: false, err});
 		    }
 
 		    passport.authenticate('local')(req, res, () => {
 			    res.statusCode = 200;
-			    res.json({success: true, status: 'Registration Successful!'});
+			    res.json({success: true, message: 'Registration Successful!'});
 		    });
 	    });
     }
@@ -71,12 +71,16 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.post('/login',
-	passport.authenticate('local'),
+	passport.authenticate('local', {failWithError: true}),
 	(req, res, next) => {
 		const token = authenticate.getToken({_id: req.user._id});
 
 		res.statusCode = 200;
-    res.json({success: true, token, status: 'You are successfully logged in'});
+    res.json({success: true, token, message: 'You are successfully logged in'});
+	},
+	(err, req, res, next) => {
+		err.message = 'Authentication error';
+		return next(err);
 	}
 );
 

@@ -11,7 +11,9 @@ const Task = new Schema({
     trim: true
   },
   priority: {
-    type: String,
+    type: Number,
+    min: 0,
+    max: 2,
     required: true
   },
   completed: {

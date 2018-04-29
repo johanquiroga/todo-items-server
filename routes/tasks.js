@@ -25,7 +25,7 @@ router.route('/')
       .populate('user', 'email firstName lastName')
       .then(tasks => {
       	res.statusCode = 200;
-      	res.json(tasks);
+      	res.json({success: true, tasks});
       }, err => next(err))
 	    .catch(err => next(err));
   })
@@ -88,9 +88,10 @@ router.route('/:taskId')
   	const {
       name = req.task.name,
       priority = req.task.priority,
-      dueDate = req.task.dueDate
+      dueDate = req.task.dueDate,
+		  completed = req.task.completed
   	} = req.body;
-    Task.findByIdAndUpdate(req.task._id, {$set: {name, priority, dueDate}}, {new: true})
+    Task.findByIdAndUpdate(req.task._id, {$set: {name, priority, dueDate, completed}}, {new: true})
 	    .then(task => {
 	    	res.statusCode = 200;
 	    	res.json({success: true, task});
