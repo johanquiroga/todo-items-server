@@ -1,7 +1,7 @@
 # Todo Items - Server
 ## Instalación
 
-Para instalar el proyecto clona este proyecto con `git clone https://github.com/johanquiroga/todo-items-server.git`. Una vez descargado se deben instalar las dependencias ejecutando en la carpeta del peoyecto `npm install`.
+Para instalar el servidor clona este proyecto con el comando `git clone https://github.com/johanquiroga/todo-items-server.git`. Una vez descargado se deben instalar las dependencias ejecutando en la carpeta del peoyecto `npm install`.
 
 Además, se debe instalar MongoDB, para esto puede seguir las [instrucciones oficiales](https://docs.mongodb.com/manual/administration/install-community/). Se debe Asegurar que esta dependecia quede correctamente instalada y configurada. Seguir detenidamente los tutoriales de acuerdo a su sistema operativo.
 
