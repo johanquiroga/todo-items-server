@@ -12,7 +12,7 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.all('/', cors.corsWithOptions, (req, res, next) => {
+router.all('/*', cors.corsWithOptions, (req, res, next) => {
 	res.setHeader('Content-Type', 'application/json');
 	next();
 });
@@ -63,7 +63,7 @@ router.post('/signup', (req, res, next) => {
 
 		    passport.authenticate('local')(req, res, () => {
 			    res.statusCode = 200;
-			    res.json({success: true, message: 'Registration Successful!'});
+			    res.json({success: true, user, message: 'Registration Successful!'});
 		    });
 	    });
     }
@@ -74,9 +74,9 @@ router.post('/login',
 	passport.authenticate('local', {failWithError: true}),
 	(req, res, next) => {
 		const token = authenticate.getToken({_id: req.user._id});
-
+		const {email, firstName, lastName, tasks, _id} = req.user;
 		res.statusCode = 200;
-    res.json({success: true, token, message: 'You are successfully logged in'});
+    res.json({success: true, user: {email, firstName, lastName, tasks, _id}, token, message: 'You are successfully logged in'});
 	},
 	(err, req, res, next) => {
 		err.message = 'Authentication error';
@@ -88,7 +88,7 @@ router.post('/logout', authenticate.verifyUser, (req, res, next) => {
   if (req.user) {
   	req.user = null;
   	req.statusCode = 200;
-  	return res.json({success: true, token: null, status: 'Successfully logged out'});
+  	return res.json({success: true, user: {}, status: 'Successfully logged out'});
   } else {
 	  return next(new errors.Forbidden('You are not logged in!'));
   }

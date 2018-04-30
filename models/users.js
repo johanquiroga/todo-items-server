@@ -7,21 +7,21 @@ const sanitizerPlugin = require('mongoose-sanitizer-plugin');
 const firstNameValidator = [
   validate({
     validator: 'isAlpha',
-    message: 'El nombre debería contener letras unicamente'
+    message: 'First name must not contain numbers or spaces'
   })
 ];
 
 const lastNameValidator = [
   validate({
     validator: 'isAlpha',
-    message: 'El nombre debería contener letras unicamente'
+    message: 'Last name must not contain numbers or spaces'
   })
 ];
 
 const emailValidator = [
 	validate({
 		validator: 'isEmail',
-		message: 'Por favor ingres un e-mail válido'
+		message: 'Please enter a valid E-mail'
 	})
 ];
 
