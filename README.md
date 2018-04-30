@@ -3,7 +3,7 @@
 
 Para instalar el servidor clona este proyecto con el comando `git clone https://github.com/johanquiroga/todo-items-server.git`. Una vez descargado se deben instalar las dependencias ejecutando en la carpeta del peoyecto `npm install`.
 
-Además, se debe instalar MongoDB, para esto puede seguir las [instrucciones oficiales](https://docs.mongodb.com/manual/administration/install-community/). Se debe Asegurar que esta dependecia quede correctamente instalada y configurada. Seguir detenidamente los tutoriales de acuerdo a su sistema operativo.
+Además, se debe instalar MongoDB: para esto puede seguir las [instrucciones oficiales](https://docs.mongodb.com/manual/administration/install-community/). Se debe asegurar que esta dependecia quede correctamente instalada y configurada. Siga detenidamente los tutoriales de acuerdo a su sistema operativo.
 
 ## Configuración
 
@@ -18,7 +18,7 @@ Antes de ejecutar el proyecto se debe asegurar que el demonio de base de datos d
 
 Para ejecutar el servidor solo debe ejecutar en la carpeta del mismo el comando `npm start`.
 
-Una vez inicie el mismo se debe mostrar un mensaje de conexión correcta con la base de datos, si este no aparece significa que el proyecto no quedo bien configurado y/o se presentó algún error.
+Una vez inicie el servidor se debe mostrar un mensaje de conexión correcta con la base de datos, si este no aparece significa que el proyecto no quedó bien configurado y/o se presentó algún error.
 
 Ahora puedes instalar y ejecutar el [cliente](https://github.com/johanquiroga/todo-items-ui) y empezar a interactuar con el servidor.
 
