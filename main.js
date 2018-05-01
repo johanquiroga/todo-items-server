@@ -8,6 +8,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+const middlewares = require('./middlewares');
 const config = require('./config');
 
 const index = require('./routes/index');
@@ -38,13 +39,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
-app.use((req, res, next) => {
-  if (req.body.data) {
-    req.body = {...req.body, ...req.body.data};
-    delete req.body.data;
-  }
-  next();
-});
+app.use(middlewares.processBody);
 
 app.use('/', index);
 app.use('/users', users);

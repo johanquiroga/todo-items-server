@@ -12,6 +12,7 @@ Antes de ejecutar el proyecto debe definir unas variables de entorno necesarias 
 * `MONGO_URL=mongodb://username:password@host:port/database`. Dirección de conexión a base de datos.
 * `WHITELIST=host1,host2`. Lista de hosts que van a ser permitidos en la configuración de CORS
 * `JWT_SECRET_KEY=YOUR_SECRET_KEY`. Clave secreta para la generación de tokens de autenticación
+* `CLIENT_URL`. Url del cliente web para redirección cuando se intente ingresar directamente desde el navegador a la dirección del servidor.
 
 ## Ejecución
 Antes de ejecutar el proyecto se debe asegurar que el demonio de base de datos de MongoDB se haya [iniciado correctamente](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/#verify-that-mongodb-has-started-successfully).

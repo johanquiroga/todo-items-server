@@ -12,7 +12,7 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 /* GET users listing. */
-router.all('/*', cors.corsWithOptions, (req, res, next) => {
+router.all('*', cors.corsWithOptions, (req, res, next) => {
 	res.setHeader('Content-Type', 'application/json');
 	next();
 });
@@ -28,7 +28,7 @@ router.get('/', authenticate.verifyUser, authorization.verifyAdmin, (req, res, n
 });
 
 router.get('/:userId', authenticate.verifyUser, authorization.verifyUser, (req, res, next) => {
-	User.findById(req.params.userId)
+	User.findById(req.params.userId, '-admin')
 		.populate('tasks', '-user')
 		.then(user => {
 			if (!user) {
