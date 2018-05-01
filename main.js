@@ -8,6 +8,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+require('./auth/authenticate');
 const middlewares = require('./middlewares');
 const config = require('./config');
 

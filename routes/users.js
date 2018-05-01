@@ -19,7 +19,6 @@ router.all('*', cors.corsWithOptions, (req, res, next) => {
 
 router.get('/', authenticate.verifyUser, authorization.verifyAdmin, (req, res, next) => {
   User.find({})
-    .populate('tasks', '-user')
     .then((users) => {
       res.statusCode = 200;
       res.json({success: true, users});
@@ -28,8 +27,7 @@ router.get('/', authenticate.verifyUser, authorization.verifyAdmin, (req, res, n
 });
 
 router.get('/:userId', authenticate.verifyUser, authorization.verifyUser, (req, res, next) => {
-	User.findById(req.params.userId, '-admin')
-		.populate('tasks', '-user')
+	User.findById(req.params.userId, 'email firstName lastName _id')
 		.then(user => {
 			if (!user) {
 				return next(new errors.NotFound('User ' + userId + ' not found'));
@@ -71,12 +69,12 @@ router.post('/signup', (req, res, next) => {
 });
 
 router.post('/login',
-	passport.authenticate('local', {failWithError: true}),
+	passport.authenticate('local', {session: false, failWithError: true}),
 	(req, res, next) => {
 		const token = authenticate.getToken({_id: req.user._id});
-		const {email, firstName, lastName, tasks, _id} = req.user;
+		const {email, firstName, lastName, _id} = req.user;
 		res.statusCode = 200;
-    res.json({success: true, user: {email, firstName, lastName, tasks, _id}, token, message: 'You are successfully logged in'});
+    res.json({success: true, user: {email, firstName, lastName, _id}, token, message: 'You are successfully logged in'});
 	},
 	(err, req, res, next) => {
 		err.message = 'Authentication error';
@@ -86,8 +84,7 @@ router.post('/login',
 
 router.post('/logout', authenticate.verifyUser, (req, res, next) => {
   if (req.user) {
-  	req.user = null;
-  	req.statusCode = 200;
+	  req.logout();
   	return res.json({success: true, user: {}, status: 'Successfully logged out'});
   } else {
 	  return next(new errors.Forbidden('You are not logged in!'));

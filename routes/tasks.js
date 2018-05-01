@@ -34,12 +34,8 @@ router.route('/')
   	const user = req.user._id;
   	Task.create({name, priority, dueDate, user})
 		  .then(task => {
-	      req.user.tasks.push(task._id);
-	      req.user.save().then(user => {
-			    res.statusCode = 200;
-			    res.json({success: true, task});
-		    }, err => next(err))
-	      .catch(err => next(err));
+		    res.statusCode = 200;
+		    res.json({success: true, task});
 	    }, err => next(err))
 		  .catch(err => next(err));
   })

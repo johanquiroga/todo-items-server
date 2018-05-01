@@ -46,8 +46,7 @@ const User = new Schema({
 	admin: {
 		type: Boolean,
 		default: false
-	},
-  tasks: [{type: Schema.Types.ObjectId, ref: 'Task'}]
+	}
 }, {
   timestamps: true
 });
