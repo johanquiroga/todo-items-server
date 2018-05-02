@@ -1,4 +1,8 @@
 # Todo Items - Server
+## Publicación
+El servidor está corriendo en un servidor de Amazon en esta [dirección](http://todo-items-api.us-east-1.elasticbeanstalk.com) y se inetractúa con el mismo a través del [cliente web](http://todo-items.johanquiroga.me).  
+Este es desplegado mediante Amazon Elastic Beanstalk y configurado con base de datos MongoDB proporcionada por el servicio MongoDB Atlas.
+
 ## Instalación
 
 Para instalar el servidor clona este proyecto con el comando `git clone https://github.com/johanquiroga/todo-items-server.git`. Una vez descargado se deben instalar las dependencias ejecutando en la carpeta del proyecto `npm install`.
